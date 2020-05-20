@@ -27,7 +27,7 @@
 %
 %The script relies on the Matlab Mapping Toolbox
 %
-%Richard S.J. Tol, 17 May 2020
+%Richard S.J. Tol, 20 May 2020
 
 clear all
 
@@ -80,7 +80,15 @@ GDL = shaperead('GDL Shapefiles V4.shp');
 
 %%
 for i = 1:size(GDL),
-    [z, r]= vec2mtx(GDL(i).Y,GDL(i).X,Res,[-90 90],[-180 180]);
-    T0 = B.*z;
-    T(i) = sum(nansum(T0))/sum(sum(z));
+    [z, r]= vec2mtx(GDL(i).Y,GDL(i).X,Res,[-90 90],[-180 180]); %z == 1 if border
+    y = z; %fill in
+    for j=2:359,
+        for k=2:719,
+            if z(j,k)==0 & sum(z(1:j-1,k))>0 & sum(z(j+1:360,k))>0 & sum(z(j,1:k-1))>0 & sum(z(j,k+1:720))>0
+                y(j,k) = 1;
+            end
+        end
+    end
+    T0 = B.*y;
+    T(i) = sum(nansum(T0))/sum(sum(y));
 end
